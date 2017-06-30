@@ -6,7 +6,6 @@
  */
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 
 /// <summary>
 /// 最高效的对象池
@@ -17,7 +16,7 @@ public class GenericPool<T>
 
     public void Add(object key, T value)
     {
-
+        values.Add(key, value);
     }
     public T Get(object key)
     {
