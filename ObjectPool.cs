@@ -16,13 +16,14 @@ public class ObjectPool : MonoBehaviour
     //配置
     public bool setParent = true;//是否SetParent
     public bool setDisable = true;//是否SetActive(false)
+    public bool resetParent = true;
     public bool resetEnable = true;//重置是否SetActive(true)
 
     private static ObjectPool ins;
     private static Transform container;
     
     private static GenericPool<ObjectItem> objects;
-    private static GenericPool<ObjectItem<Component>> components;
+    private static GenericPool<ObjectItem> components;
 
     // Use this for initialization
     void Start()
@@ -30,51 +31,48 @@ public class ObjectPool : MonoBehaviour
         ins = this;
         container = transform;
         objects = new GenericPool<ObjectItem>();
-        components = new GenericPool<ObjectItem<Component>>();
+        components = new GenericPool<ObjectItem>();
     }
 
-    private static ObjectItem<T> Serialize<T>(T component) where T : Component
-    {
-        return new ObjectItem<T>(component);
-    }
-    private static ObjectItem Serialize(GameObject obj)
-    {
-        return new ObjectItem(obj);
-    }
 
     /// <summary>
     /// 设置
     /// </summary>
-    /// <param name="o"></param>
-    private static void Set(GameObject o)
+    /// <param name="item"></param>
+    private static void Set(ObjectItem item)
     {
         if (ins.setParent)
-            o.transform.SetParent(container);
+            item.transform.SetParent(container);
 
         if (ins.setDisable)
-            o.SetActive(false);
+            item.gameObject.SetActive(false);
     }
 
     /// <summary>
     /// 重置
     /// </summary>
     /// <param name="o"></param>
-    private static void Reset(GameObject o)
+    private static void Reset(ObjectItem item)
     {
+        if (ins.resetParent)
+            item.transform.SetParent(item.parent);
+
         if (ins.resetEnable)
-            o.SetActive(true);
+            item.gameObject.SetActive(true);
     }
 
 #region 使用接口
     public static void Add(object key, GameObject obj)
     {
-        Set(obj);
-        objects.Add(key, obj);
+        ObjectItem item = new ObjectItem(obj);
+        Set(item);
+        objects.Add(key, item);
     }
     public static void Add<T>(object key, T component) where T : Component
     {
-        Set(component.gameObject);
-        components.Add(key, component);
+        ObjectItem<T> item = new ObjectItem<T>(component);
+        Set(item);
+        components.Add(key, item);
     }
 
     public static GameObject Get(object key)
@@ -99,17 +97,21 @@ public class ObjectPool : MonoBehaviour
 /// <typeparam name="T"></typeparam>
 internal class ObjectItem
 {
-    public GameObject obj;//对象
+    public GameObject gameObject;//对象
+    public Transform transform;
     public Transform parent;//推进池之前的parent
+
 
     public ObjectItem(GameObject obj)
     {
-        this.obj = obj;
+        this.gameObject = obj;
+        this.transform = obj.transform;
+        this.parent = transform.parent;
     }
 
     public void Destory()
     {
-        GameObject.Destroy(obj);
+        GameObject.Destroy(gameObject);
     }
 }
 
