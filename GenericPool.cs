@@ -11,14 +11,9 @@ using UnityEngine;
 /// <summary>
 /// 最高效的对象池
 /// </summary>
-public class Pool<T>
+public class GenericPool<T>
 {
     private Dictionary<object, T> values = new Dictionary<object,T>();
-    // Use this for initialization
-    void Start()
-    {
-
-    }
 
     public void Add(object key, T value)
     {
@@ -28,7 +23,6 @@ public class Pool<T>
     {
         T value;
         values.TryGetValue(key, out value);
-      //  values.TryGetValue(key, out value);
         return values[key];
     }
 

@@ -14,40 +14,32 @@ using UnityEngine;
 public class ObjectPool : MonoBehaviour
 {
     private static Transform container;
-    private static Pool<GameObject> objects;
-    private static Pool<Component> components;
+    private static GenericPool<Object> objects;
 
     // Use this for initialization
     void Start()
     {
         container = transform;
-        objects = new Pool<GameObject>();
-        components = new Pool<Component>();
+        objects = new GenericPool<Object>();
     }
-
 
     private static void AddChild(Transform child)
     {
         child.SetParent(container);
     }
 
-    public static void Add(object key, GameObject obj)
+    public static void Add(object key, Object obj)
     {
         objects.Add(key, obj);
     }
 
-    public static void Add<T>(object key, T component) where T : Component
-    {
-        components.Add(key, component);
-    }
-
-    public static GameObject Get(object key)
+    public static Object Get(object key)
     {
         return objects.Get(key);
     }
 
-    public static T Get<T>(object key) where T : MonoBehaviour
+    public static T Get<T>(object key) where T : Object
     {
-        return components.Get(key);
+        return (T)Get(key);
     }
 }
