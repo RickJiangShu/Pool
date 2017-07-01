@@ -79,12 +79,20 @@ public class ObjectPool : MonoBehaviour
 
     public static GameObject Get(object key)
     {
-        return Reset(objects.Get(key)).gameObject;
+        ObjectItem item = objects.Get(key);
+        if (item == null) 
+            return null;
+
+        return Reset(item).gameObject;
     }
 
     public static T Get<T>(object key) where T : Component
     {
-        return (T)Reset(components.Get(key)).component;
+        ObjectItem item = components.Get(key);
+        if (item == null)
+            return null;
+
+        return (T)Reset(item).component;
     }
 
     public static void Clear()

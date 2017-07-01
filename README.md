@@ -18,3 +18,7 @@
 1、Get GameObject or Component  
 2、从 ObjectItem 取出  
 3、重置  
+
+
+ObjectFactory 设计思路  
+Get 接口 可以一行设置好
