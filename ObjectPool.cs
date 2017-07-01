@@ -39,50 +39,52 @@ public class ObjectPool : MonoBehaviour
     /// 设置
     /// </summary>
     /// <param name="item"></param>
-    private static void Set(ObjectItem item)
+    private static ObjectItem Set(ObjectItem item)
     {
         if (ins.setParent)
             item.transform.SetParent(container);
 
         if (ins.setDisable)
             item.gameObject.SetActive(false);
+
+        return item;
     }
 
     /// <summary>
     /// 重置
     /// </summary>
     /// <param name="o"></param>
-    private static void Reset(ObjectItem item)
-    {
+    private static ObjectItem Reset(ObjectItem item)
+    {   
         if (ins.resetParent)
             item.transform.SetParent(item.parent);
 
         if (ins.resetEnable)
             item.gameObject.SetActive(true);
+
+        return item;
     }
 
 #region 使用接口
     public static void Add(object key, GameObject obj)
     {
         ObjectItem item = new ObjectItem(obj);
-        Set(item);
-        objects.Add(key, item);
+        objects.Add(key, Set(item));
     }
     public static void Add<T>(object key, T component) where T : Component
     {
-        ObjectItem<T> item = new ObjectItem<T>(component);
-        Set(item);
-        components.Add(key, item);
+        ObjectItem item = new ObjectItem(component.gameObject, component);
+        components.Add(key, Set(item));
     }
 
     public static GameObject Get(object key)
     {
-        return objects.Get(key);
+        return Reset(objects.Get(key)).gameObject;
     }
 
     public static T Get<T>(object key) where T : Component
     {
-        return (T)components.Get(key);
+        return (T)Reset(components.Get(key)).component;
     }
 
     public static void Clear()
@@ -98,13 +100,15 @@ public class ObjectPool : MonoBehaviour
 internal class ObjectItem
 {
     public GameObject gameObject;//对象
+    public Component component;//组件
     public Transform transform;
     public Transform parent;//推进池之前的parent
 
 
-    public ObjectItem(GameObject obj)
+    public ObjectItem(GameObject obj,Component com = null)
     {
         this.gameObject = obj;
+        this.component = com;
         this.transform = obj.transform;
         this.parent = transform.parent;
     }
@@ -112,14 +116,5 @@ internal class ObjectItem
     public void Destory()
     {
         GameObject.Destroy(gameObject);
-    }
-}
-
-internal class ObjectItem<T> : ObjectItem where T : Component
-{
-    public T component;
-    public ObjectItem(T component) : base(component.gameObject)
-    {
-        this.component = component;
     }
 }
